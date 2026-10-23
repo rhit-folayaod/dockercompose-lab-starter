@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NBA Player Predictor</title>
+  <style>
+    :root {
+      --nba-blue: #1d428a;
+      --nba-red: #c8102e;
+      --bg: #f5f5f7;
+      --card: #ffffff;
+      --text: #1a1a1a;
+      --muted: #666;
+      --border: #e1e1e6;
+      --accent: #0a8754;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+    }
+    header {
+      background: linear-gradient(135deg, var(--nba-blue), var(--nba-red));
+      color: white;
+      padding: 2em 1em;
+      text-align: center;
+    }
+    header h1 { margin: 0; font-size: 2.4em; letter-spacing: 1px; }
+    header p  { margin: 0.5em 0 0; opacity: 0.9; }
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2em 1em;
+    }
+    .section {
+      background: var(--card);
+      border-radius: 10px;
+      padding: 1.5em;
+      margin-bottom: 1.5em;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .section h2 { margin: 0 0 1em; color: var(--nba-blue); }
+    button {
+      background: var(--nba-blue);
+      color: white;
+      border: none;
+      padding: 0.6em 1.2em;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.95em;
+      transition: background 0.15s, transform 0.05s;
+    }
+    button:hover { background: #163269; }
+    button:active { transform: translateY(1px); }
+    button:disabled { background: #aaa; cursor: not-allowed; }
+    input, select {
+      padding: 0.6em;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.95em;
+      background: white;
+    }
+    label { display: block; font-size: 0.85em; color: var(--muted); margin-bottom: 0.3em; }
+    .controls { display: flex; gap: 1em; flex-wrap: wrap; align-items: end; }
+    .controls > div { flex: 1; min-width: 180px; }
+    .controls > div:last-child { flex: 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1em; }
+    th, td { text-align: left; padding: 0.7em 1em; border-bottom: 1px solid var(--border); }
+    th {
+      background: #fafafb;
+      font-weight: 600;
+      color: var(--muted);
+      font-size: 0.85em;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    tr:hover td { background: #fafafb; }
+    .status { color: var(--muted); font-style: italic; margin-top: 0.8em; }
+    .error  { color: var(--nba-red); font-weight: 600; }
+    .team-pill {
+      display: inline-block;
+      background: var(--nba-blue);
+      color: white;
+      padding: 0.2em 0.6em;
+      border-radius: 999px;
+      font-size: 0.8em;
+      font-weight: 600;
+    }
+    .search { width: 100%; max-width: 320px; margin-bottom: 1em; }
+
+    .prediction-card {
+      background: linear-gradient(135deg, #f0f4ff 0%, #ffffff 100%);
+      border-left: 5px solid var(--nba-blue);
+      padding: 1.5em;
+      margin-top: 1em;
+      border-radius: 8px;
+    }
+    .prediction-card .matchup {
+      font-size: 1.1em;
+      color: var(--muted);
+      margin-bottom: 0.5em;
+    }
+    .prediction-card .big {
+      font-size: 3em;
+      font-weight: bold;
+      color: var(--nba-blue);
+      line-height: 1;
+      margin: 0.3em 0;
+    }
+    .prediction-card .label {
+      color: var(--muted);
+      font-size: 0.95em;
+      margin-bottom: 1em;
+    }
+    .meta-row {
+      display: flex;
+      gap: 1.5em;
+      margin-top: 1em;
+      padding-top: 1em;
+      border-top: 1px solid var(--border);
+    }
+    .meta-item .meta-label {
+      font-size: 0.75em;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .meta-item .meta-value {
+      font-size: 1.2em;
+      font-weight: 600;
+      color: var(--text);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🏀 NBA Player Predictor</h1>
+    <p>Predicting player performance with machine learning</p>
+  </header>
+
+  <main>
+    <!-- HEALTH -->
+    <div class="section">
+      <h2>System Health</h2>
+      <button onclick="loadHealth()">Check Health</button>
+      <div id="health-output" class="status"></div>
+    </div>
+
+    <!-- ML PREDICTION (now at top, the main feature) -->
+    <div class="section">
+      <h2>ML Prediction</h2>
+      <p style="color: var(--muted); margin-top: -0.5em;">
+        Pick a player and an opposing team. The model predicts how many points the player will score.
+      </p>
+      <div class="controls">
+        <div>
+          <label for="ml-player">Player</label>
+          <select id="ml-player" style="width: 100%;"></select>
+        </div>
+        <div>
+          <label for="ml-opponent">Opponent Team</label>
+          <select id="ml-opponent" style="width: 100%;"></select>
+        </div>
+        <div>
+          <button id="ml-button" onclick="makeMlPrediction()">Predict Points</button>
+        </div>
+      </div>
+      <div id="ml-output"></div>
+    </div>
+
+    <!-- TEAMS -->
+    <div class="section">
+      <h2>Teams</h2>
+      <button onclick="loadTeams()">Load Teams</button>
+      <input class="search" id="team-search" type="text" placeholder="Search teams..." oninput="filterTable('teams-table', this.value)" />
+      <div id="teams-output"></div>
+    </div>
+
+    <!-- PLAYERS -->
+    <div class="section">
+      <h2>Players</h2>
+      <button onclick="loadPlayers()">Load Players</button>
+      <input class="search" id="player-search" type="text" placeholder="Search players..." oninput="filterTable('players-table', this.value)" />
+      <div id="players-output"></div>
+    </div>
+
+    <!-- HISTORY -->
+    <div class="section">
+      <h2>Prediction History</h2>
+      <button onclick="loadHistory()">Load History</button>
+      <div id="history-output"></div>
+    </div>
+  </main>
+
+  <script>
+    // Cached for the dropdowns
+    let TEAMS = [];
+    let PLAYERS = [];
+
+    function setStatus(id, msg, isError = false) {
+      document.getElementById(id).innerHTML =
+        `<div class="status${isError ? ' error' : ''}">${msg}</div>`;
+    }
+
+    function renderTable(rows, columns, tableId) {
+      const headers = columns.map(c => `<th>${c.label}</th>`).join('');
+      const body = rows.map(r =>
+        '<tr>' + columns.map(c => `<td>${c.render ? c.render(r) : (r[c.key] ?? '')}</td>`).join('') + '</tr>'
+      ).join('');
+      return `<table id="${tableId}"><thead><tr>${headers}</tr></thead><tbody>${body}</tbody></table>`;
+    }
+
+    function filterTable(tableId, query) {
+      const table = document.getElementById(tableId);
+      if (!table) return;
+      const q = query.toLowerCase();
+      [...table.tBodies[0].rows].forEach(row => {
+        row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+      });
+    }
+
+    // ── Health ────────────────────────────────────────────────────────
+    async function loadHealth() {
+      setStatus('health-output', 'Loading...');
+      try {
+        const r = await fetch('/health');
+        const data = await r.json();
+        document.getElementById('health-output').innerHTML =
+          `<div>API: ${data.api === 'up' ? '✅ Up' : '❌ Down'}</div>
+           <div>Database: ${data.database === 'up' ? '✅ Up' : '❌ Down'}</div>`;
+      } catch (err) {
+        setStatus('health-output', 'Error: ' + err.message, true);
+      }
+    }
+
+    // ── Populate dropdowns on page load ───────────────────────────────
+    async function populateDropdowns() {
+      try {
+        const [teamsR, playersR] = await Promise.all([fetch('/teams'), fetch('/players')]);
+        TEAMS = await teamsR.json();
+        PLAYERS = await playersR.json();
+
+        const teamSel = document.getElementById('ml-opponent');
+        teamSel.innerHTML = TEAMS
+          .sort((a, b) => a.team_name.localeCompare(b.team_name))
+          .map(t => `<option value="${t.team_code}">${t.team_name} (${t.team_code})</option>`)
+          .join('');
+
+        const playerSel = document.getElementById('ml-player');
+        playerSel.innerHTML = PLAYERS
+          .sort((a, b) => a.player_name.localeCompare(b.player_name))
+          .map(p => `<option value="${p.id}">${p.player_name} — ${p.team_code}</option>`)
+          .join('');
+      } catch (err) {
+        setStatus('ml-output', 'Could not load player/team list: ' + err.message, true);
+      }
+    }
+
+    // ── Teams table ───────────────────────────────────────────────────
+    async function loadTeams() {
+      setStatus('teams-output', 'Loading...');
+      try {
+        const r = await fetch('/teams');
+        const data = await r.json();
+        const cols = [
+          { key: 'id', label: 'ID' },
+          { key: 'team_code', label: 'Code', render: r => `<span class="team-pill">${r.team_code}</span>` },
+          { key: 'team_name', label: 'Team Name' },
+        ];
+        document.getElementById('teams-output').innerHTML = renderTable(data, cols, 'teams-table');
+      } catch (err) {
+        setStatus('teams-output', 'Error: ' + err.message, true);
+      }
+    }
+
+    // ── Players table ─────────────────────────────────────────────────
+    async function loadPlayers() {
+      setStatus('players-output', 'Loading...');
+      try {
+        const r = await fetch('/players');
+        const data = await r.json();
+        const cols = [
+          { key: 'id', label: 'ID' },
+          { key: 'player_name', label: 'Player' },
+          { key: 'team_code', label: 'Team', render: r => `<span class="team-pill">${r.team_code}</span>` },
+          { key: 'team_name', label: 'Team Name' },
+        ];
+        document.getElementById('players-output').innerHTML = renderTable(data, cols, 'players-table');
+      } catch (err) {
+        setStatus('players-output', 'Error: ' + err.message, true);
+      }
+    }
+
+    // ── ML Prediction ─────────────────────────────────────────────────
+    async function makeMlPrediction() {
+      const btn = document.getElementById('ml-button');
+      btn.disabled = true;
+      btn.textContent = "Predicting...";
+      setStatus('ml-output', '');
+
+      const player_id = parseInt(document.getElementById('ml-player').value);
+      const opponent_code = document.getElementById('ml-opponent').value;
+
+      try {
+        const r = await fetch('/predictions/ml', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({player_id, opponent_code}),
+        });
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.detail || 'Request failed');
+
+        const p = data.prediction;
+        const opp = TEAMS.find(t => t.team_code === p.opponent_code);
+        const oppName = opp ? opp.team_name : p.opponent_code;
+
+        document.getElementById('ml-output').innerHTML = `
+          <div class="prediction-card">
+            <div class="matchup">${p.player_name} vs ${oppName}</div>
+            <div class="big">${p.predicted_points}</div>
+            <div class="label">predicted points</div>
+            ${p.player_avg !== undefined ? `
+            <div class="meta-row">
+              <div class="meta-item">
+                <div class="meta-label">Player Avg</div>
+                <div class="meta-value">${p.player_avg}</div>
+              </div>
+              <div class="meta-item">
+                <div class="meta-label">Opponent Difficulty</div>
+                <div class="meta-value">${p.opponent_difficulty}</div>
+              </div>
+              <div class="meta-item">
+                <div class="meta-label">Saved</div>
+                <div class="meta-value">${new Date(p.created_at).toLocaleString()}</div>
+              </div>
+            </div>
+            ` : ''}
+          </div>`;
+      } catch (err) {
+        setStatus('ml-output', 'Error: ' + err.message, true);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Predict Points";
+      }
+    }
+
+    // ── History ───────────────────────────────────────────────────────
+    async function loadHistory() {
+      setStatus('history-output', 'Loading...');
+      try {
+        const r = await fetch('/predictions');
+        const data = await r.json();
+        const cols = [
+          { key: 'id', label: 'ID' },
+          { key: 'player_name', label: 'Player' },
+          { key: 'opponent_code', label: 'Opponent', render: r => `<span class="team-pill">${r.opponent_code}</span>` },
+          { key: 'predicted_points', label: 'Predicted Pts' },
+          { key: 'created_at', label: 'Created', render: r => new Date(r.created_at).toLocaleString() },
+        ];
+        document.getElementById('history-output').innerHTML = renderTable(data, cols, 'history-table');
+      } catch (err) {
+        setStatus('history-output', 'Error: ' + err.message, true);
+      }
+    }
+
+    // Init
+    loadHealth();
+    populateDropdowns();
+  </script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+# Lab stand-in for the model service.
+# The real one loads a trained model; this one returns a fixed prediction so
+# the image stays small and students are not waiting on scikit-learn to build.
+
+FROM python:3.12-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY stub_server.py /app/stub_server.py
+
+EXPOSE 8080
+
+CMD ["uvicorn", "stub_server:app", "--host", "0.0.0.0", "--port", "8080"]

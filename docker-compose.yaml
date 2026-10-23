@@ -1,0 +1,28 @@
+# STAGE 1 -- the starting point. This file is broken on purpose.
+#
+# Your job over the next few stages is to turn this into a stack that comes up
+# reliably, runs its migrations, talks to a second service, and keeps its data.
+#
+# Do not fix anything yet. Run it first and watch what happens.
+
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+
+  api:
+    build:
+      context: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/app
+    env_file:
+      - .env
+    depends_on:
+      - db
