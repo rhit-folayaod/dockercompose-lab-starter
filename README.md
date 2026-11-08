@@ -1,4 +1,4 @@
-# Docker Compose — Spike starter
+# Docker Compose - Spike starter
 
 A small four-service application for you to take apart and put back together.
 It predicts how many points an NBA player will score against a given opponent.
@@ -46,7 +46,7 @@ Compose reads `.env` automatically to fill in the `${POSTGRES_...}` values.
 Skip this and they resolve to empty strings, and you will get confusing
 failures that have nothing to do with the Spike.
 
-> Copy `.env.example` as-is — don't change the values in it. `flyway.conf`
+> Copy `.env.example` as-is - don't change the values in it. `flyway.conf`
 > has the same database name, user and password written into it separately, so
 > changing one and not the other breaks the migrations in a way that looks like
 > a totally unrelated problem.
@@ -85,7 +85,7 @@ docker compose down -v         # ...and remove named volumes too
 ## Turning it in
 
 Fill in `ANSWERS.md` as you go. Write each prediction **before** you run the
-command — a prediction made after you have seen the result is not a prediction,
+command - a prediction made after you have seen the result is not a prediction,
 and it is obvious in the writing.
 
 Your Spike deliverable is a PDF. See the handout for what goes in it.
