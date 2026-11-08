@@ -1,10 +1,5 @@
-# STAGE 1 -- the starting point. This file is broken on purpose.
-#
-# Your job over the next few stages is to turn this into a stack that comes up
-# reliably, runs its migrations, talks to a second service, and keeps its data.
-#
-# Do not fix anything yet. Run it first and watch what happens.
-
+# STAGE 5 SOLUTION / FINAL -- named volume added, so the database keeps its
+# data across `docker compose down`.
 services:
   db:
     image: postgres:16
@@ -14,6 +9,31 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  flyway:
+    image: flyway/flyway:10
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./sql:/flyway/sql
+      - ./flyway.conf:/flyway/conf/flyway.conf
+    command: migrate
+
+  ml:
+    build:
+      context: ./ml
+      dockerfile: Dockerfile.serve
+    ports:
+      - "8080:8080"
 
   api:
     build:
@@ -24,5 +44,15 @@ services:
       - ./app:/app
     env_file:
       - .env
+    environment:
+      ML_SERVICE_URL: "http://ml:8080"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+      flyway:
+        condition: service_completed_successfully
+      ml:
+        condition: service_started
+
+volumes:
+  postgres-data:
