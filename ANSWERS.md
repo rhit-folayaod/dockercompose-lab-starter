@@ -1,27 +1,30 @@
-# Docker Compose Lab — Answers
+# Spike Worksheet
 
 Name:
 
-Fill this in as you go. For every **Prediction**, write your answer down
-*before* you run anything. You are not graded on whether your prediction was
-right — you are graded on having made one and explained the gap.
+Fill this in as you work through the stages. Every **Prediction** gets written
+down *before* you run anything.
+
+You are not graded on whether a prediction was right. You are graded on having
+made one and being able to explain the gap.
+
+Keep this file — it goes in your Spike PDF.
 
 ---
 
-## Stage 1 — Run the broken stack
+## Stage 1 — Why did it fail?
 
-**Prediction 1.** You are about to `docker compose up` a stack where `api`
-depends on `db` with a plain `depends_on`. Will the api start successfully?
-Why or why not?
+**What happened** (paste the lines from the api where it gives up):
 
 > 
 
-**What actually happened** (paste the relevant lines from the api logs):
+**Q1.** `docker compose ps` reports the `db` container as running, and the api
+still could not reach it. What is the difference between those two statements?
 
 > 
 
-**Q1.** `docker compose ps` shows the `db` container as running. The api still
-could not reach it. What is the difference between those two statements?
+**Q2.** Look back at the map you drew in the Lab. Did you predict this failure?
+If you predicted a different symptom, what did you expect instead?
 
 > 
 
@@ -29,39 +32,38 @@ could not reach it. What is the difference between those two statements?
 
 ## Stage 2 — Make the api wait for readiness
 
-**Q2.** You added a healthcheck and changed `depends_on` to use
-`condition: service_healthy`. In your own words, what is `pg_isready` actually
-testing, and why can't Compose figure that out on its own?
+**Q3.** You added a healthcheck and changed how `depends_on` works. In your own
+words, what is `pg_isready` actually testing, and why can Compose not work that
+out by itself?
 
 > 
 
-**Q3.** A classmate says "just put a retry loop in the api, then you don't need
+**Q4.** A classmate says "just put a retry loop in the api and you don't need
 any of this." Give one argument for their approach and one against it.
 
 > 
 
 ---
 
-## Stage 3 — Add migrations
+## Stage 3 — Add the migration job
 
-**Q4.** `flyway` uses `condition: service_completed_successfully` while `db`
-uses `condition: service_healthy`. Why do those two services need different
-conditions?
+**Q5.** `flyway` needs a different `depends_on` condition than `db` does. Why?
+What is different about a job that is supposed to finish?
 
 > 
 
-**Q5.** Run `docker compose ps -a` after the stack is up. What state is the
-flyway container in, and is that a problem?
+**Q6.** Run `docker compose ps -a` once the stack is up. What state is the
+flyway container in? Is that a problem?
 
 > 
 
 ---
 
-## Stage 4 — Talk to the second service
+## Stage 4 — Let the services talk
 
-**Prediction 2.** `ML_SERVICE_URL` is currently `http://localhost:8080`, and
-the `ml` service does publish port 8080. From inside the `api` container, will
-that URL reach the ml service?
+**PREDICTION 1.** `ML_SERVICE_URL` is `http://localhost:8080`, and the `ml`
+service publishes port 8080. From inside the `api` container, will that URL
+reach the ml service?
 
 > 
 
@@ -69,14 +71,15 @@ that URL reach the ml service?
 
 > 
 
-**Q6.** Explain what `localhost` means from inside a container, and why
+**Q7.** Explain what `localhost` means from inside a container, and why
 `http://ml:8080` works when `http://localhost:8080` does not.
 
 > 
 
-**Q7.** `ml` publishes `8080:8080`, so you can reach it from your own browser
-at `localhost:8080`. Does the `api` service need that published port in order
-to call it? Try removing the `ports:` block from `ml` and find out.
+**Q8.** You can reach the ml service from your own browser at
+`localhost:8080` because it publishes that port. Does the `api` need that
+published port in order to call it? Remove the `ports:` block from `ml` and
+find out.
 
 > 
 
@@ -84,51 +87,45 @@ to call it? Try removing the `ports:` block from `ml` and find out.
 
 ## Stage 5 — Where the data lives
 
-Add a player through the api so there is something in the database to lose.
+Add a player through the api first, so there is something to lose.
 
-**Prediction 3.** With no `volumes:` on the `db` service, will your new player
-still be there after `docker compose down` and `docker compose up`?
-
-> 
-
-**What actually happened:**
+**PREDICTION 2.** With no `volumes:` on `db`, will your player still be there
+after `docker compose down` and `docker compose up`?
 
 > 
 
-Now add the named volume.
-
-**Prediction 4.** With the named volume in place, will the player survive
-`docker compose down` and come back up?
+**PREDICTION 3.** With a named volume, will it survive `docker compose down`?
 
 > 
 
-**Prediction 5.** Will it survive `docker compose down -v`?
+**PREDICTION 4.** With a named volume, will it survive `docker compose down -v`?
 
 > 
 
-**What actually happened for both:**
+**What actually happened, for all three:**
 
 > 
 
-**Q8.** The `api` service has `./app:/app` and the `db` service now has
-`postgres-data:/var/lib/postgresql/data`. Both are under `volumes:`. What is
-the difference between them, and why does `api` want one kind and `db` the
-other?
+**Q9.** `api` has `./app:/app` and `db` has
+`postgres-data:/var/lib/postgresql/data`. Both sit under `volumes:`. What is
+the difference between them, and why does each service want the kind it has?
 
 > 
 
 ---
 
-## Wrap-up
+## Timing
 
-**Q9.** Which of your five predictions were wrong? Pick the one that surprised
-you most and explain what you had misunderstood.
+How long did a full `docker compose down -v` followed by `docker compose up`
+take, from nothing to the api answering a request?
+
+> 
+
+How does that compare against the success measure you set for yourself in the
+Lab?
 
 > 
 
-**Q10.** The stack you just built is a description of a deployment
-architecture. Name one quality attribute from this course that a Compose file
-helps you achieve, and point at the specific lines in your
-`docker-compose.yaml` that do it.
+---
 
-> 
+The rest of your analysis and reflection goes in your Spike PDF, not here.
