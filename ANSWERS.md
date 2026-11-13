@@ -8,7 +8,8 @@ down *before* you run anything.
 You are not graded on whether a prediction was right. You are graded on having
 made one and being able to explain the gap.
 
-Keep this file — it goes in your Spike PDF.
+This file is your Spike deliverable. Commit it on your branch and push it
+when you are done.
 
 ---
 
@@ -128,4 +129,50 @@ Lab?
 
 ---
 
-The rest of your analysis and reflection goes in your Spike PDF, not here.
+## Analyze
+
+**Q10.** Look at everything you changed. How much of it was application code,
+and how much was configuration?
+
+> 
+
+**Q11.** Did your approach introduce any new problems? Anything that is now
+slower, more complicated, or easier to get wrong?
+
+> 
+
+**Q12.** What does someone have to know about this compose file that they would
+not have had to know about the twelve-step README?
+
+> 
+
+---
+
+## Reflect
+
+**R1.** Did your implementation hit the success measure you set for yourself in
+the Lab? If you missed it, by how much, and what would close the gap?
+
+> 
+
+**R2.** Go back to the failures you predicted in step 3 of the Lab. Which ones
+happened the way you described? Which showed up as a completely different
+symptom than you expected?
+
+> 
+
+**R3.** Which of your predictions during the Spike were wrong? Pick the one that
+surprised you most and explain what you had misunderstood.
+
+> 
+
+**R4.** In the Lab you listed what a configuration file would need to be able to
+express. Compare that against what you actually wrote. What did you miss, and
+what turned out to be unnecessary?
+
+> 
+
+**Optional.** Name one thing about this stack that would still stop you from
+running it anywhere other than your own laptop.
+
+>
