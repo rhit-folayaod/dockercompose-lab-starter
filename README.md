@@ -19,6 +19,19 @@ working is the Spike.
 Do the Lab first. You are supposed to arrive here with a map already drawn and
 some predictions already written down.
 
+## Before you start: fork this repo
+
+**Fork this repository to your own GitHub account, then clone your fork.** Not
+this one. You will be pushing your finished `ANSWERS.md` to your fork at the
+end, and you do not have write access here.
+
+```
+git clone git@github.com:YOURUSERNAME/dockercompose-lab-starter.git
+```
+
+Your fork gets all the `stage-*` branches with it, so the recovery command
+below still works.
+
 ## Setup
 
 **1. Start Docker Desktop**, then confirm the daemon is actually running:
@@ -64,7 +77,7 @@ going, you can pull in a known-good compose file for the next stage without
 losing any of your own work:
 
 ```
-git checkout stage-3-start -- docker-compose.yaml
+git checkout origin/stage-3-start -- docker-compose.yaml
 ```
 
 That replaces only `docker-compose.yaml` and leaves everything else on your
@@ -88,4 +101,13 @@ Fill in `ANSWERS.md` as you go. Write each prediction **before** you run the
 command - a prediction made after you have seen the result is not a prediction,
 and it is obvious in the writing.
 
-Your Spike deliverable is a PDF. See the handout for what goes in it.
+`ANSWERS.md` **is** your Spike deliverable. When you are done, commit it on
+your branch and push:
+
+```
+git add ANSWERS.md docker-compose.yaml
+git commit -m "Spike: completed ANSWERS.md"
+git push -u origin yourusername
+```
+
+Then hand in the link to your branch on your fork.
