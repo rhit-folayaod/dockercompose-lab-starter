@@ -6,14 +6,36 @@
 # Do not fix anything yet. Run it first and watch what happens.
 
 services:
+  ml:
+    build:
+      context: ./ml
+      dockerfile: Dockerfile.serve
+
+  flyway:
+    image: flyway/flyway:11
+    command: -configFiles=/flyway/conf/flyway.conf migrate
+    volumes:
+      - ./sql:/flyway/sql
+      - ./flyway.conf:/flyway/conf/flyway.conf
+    depends_on:
+      db:
+        condition: service_healthy
+
   db:
     image: postgres:16
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d nba_predictor"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   api:
     build:
@@ -24,5 +46,13 @@ services:
       - ./app:/app
     env_file:
       - .env
+    environment:
+      ML_SERVICE_URL: http://ml:8080
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+      flyway:
+        condition: service_completed_successfully
+
+volumes:
+  postgres-data:
